@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+
+<!-- thymeleaf 문법(th)을 사용한다고 선언-->
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>게시판 프로젝트</title>
+
+    <!-- common/common.html의 모든 내용을 읽어와 th:block 태그와 바꿈 -->
+    <th:block th:replace="~{common/common}"></th:block>
+</head>
+<body>
+
+    <main>
+        
+        <!-- common/header.html의 모든 내용을 읽어와 th:block 태그와 바꿈 -->
+        <th:block th:replace="~{common/header}"></th:block>
+
+        <section class="content">
+            <section class="content-1">
+
+            </section>
+
+            <section class="content-2">
+
+                <!-- 로그인 되어있지 않을 때 -->
+                <th:block th:if="${session.loginMember == null}">
+                    <!-- method="POST" : 제출 되는 값이 주소에 안보임 -->
+                    <form th:action="@{/member/login}" method="POST" id="loginFrm">
+                        <fieldset class="id-pw-area">
+                            <section>
+                                <input type="text" name="memberEmail" 
+                                    placeholder="이메일" autocomplete="off"
+                                    value="" >
+
+
+                                <input type="password" name="memberPw" placeholder="비밀번호">                  
+                            </section>
+                            <section>
+                                <button>로그인</button>
+                            </section>
+                        </fieldset>
+
+                        <label>
+                           
+                            <input type="checkbox" name="saveId"> 아이디 저장
+
+                        </label>
+
+                        <article class="signup-find-area">
+                            <a th:href="@{/member/signUp}">회원가입</a>
+                            <span>|</span>
+                            <a href="#">ID/PW 찾기</a>
+                        </article>
+                    </form>
+
+                </th:block>
+
+
+                <!-- 로그인 되었을 때 -->
+                <th:block th:unless="${session.loginMember == null}">
+                    <article class="login-area">
+
+                        <a th:href="@{/myPage/profile}">
+
+                            <!-- 프로필 이미지가 없으면 기본 이미지 -->
+                            <th:block th:if="${session.loginMember.profileImage == null}">
+                                <!-- <img th:src="@{/images/user.png}" id="memberProfile"> -->
+                                <img th:src="#{user.default.image}" id="memberProfile">
+                            </th:block>
+
+                            <!-- 프로필 이미지가 있으면 프로필 이미지 -->
+                            <th:block th:if="${session.loginMember.profileImage != null}">
+                                <img th:src="${session.loginMember.profileImage}" id="memberProfile">
+                            </th:block>
+
+                        </a>
+
+                        <div class="my-info">
+                            <div>
+                                <a th:href="@{/myPage/info}" id="nickname" th:text="${session.loginMember.memberNickname}">닉네임</a>
+
+                                <!-- <a th:href="@{/member/logout}" id="logoutBtn">로그아웃</a> -->
+                                <a href="/member/logout" id="logoutBtn">로그아웃</a>
+                            </div>   
+
+                            <p th:text="${session.loginMember.memberEmail}">이메일</p>
+
+                        </div>
+                    </article>
+
+                </th:block>
+
+                
+            </section>
+        </section>
+    </main>
+
+    <!-- common/footer.html의 모든 내용을 읽어와 th:block 태그와 바꿈 -->
+    <th:block th:replace="~{common/footer}"></th:block>
+
+    <!-- main.js 추가 -->
+    <script th:src="@{/js/main.js}"></script>
+</body>
+</html>
