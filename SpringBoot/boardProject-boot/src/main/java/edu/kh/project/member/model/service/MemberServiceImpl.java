@@ -7,71 +7,72 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.kh.project.member.model.dto.Member;
 import edu.kh.project.member.model.mapper.MemberMapper;
+import lombok.extern.slf4j.Slf4j;
 
-@Service // bean 등록 + 비즈니스 로직 처리 역할 명시
-		// -> 비즈니스 로직 : 응답에 필요한 데이터를 만드는 과정
-		//		-  데이터 가공, DAO 호출, 트랜잭션 제어 등
+@Transactional // 예외 발생 시 롤백
+@Slf4j // 로그
+@Service // Service 역할(비즈니스 로직) + bean 등록
 public class MemberServiceImpl implements MemberService{
 
-	@Autowired // 등록된 bean 의존성 주입(DI)
-	private MemberMapper mapper;
-	
-	@Autowired // 등록된 bean 의존성 주입(DI)
+	// 암호화 객체 의존성 주입(DI)
+	@Autowired
 	private BCryptPasswordEncoder bcrypt;
 	
-	// bcrypt.encode(평문) -> 암호화
+	// DB 관련 역할 수행 객체 의존성 주입
+	@Autowired
+	private MemberMapper mapper;
+	
 	
 	@Override
 	public Member login(Member inputMember) {
-		
+	
+		// 1. 이메일이 일치하는 탈퇴하지 않은 회원 정보 조회(pw 포함)
 		Member loginMember = mapper.login(inputMember);
 		
-		// DB 조회 결과가 없을 경우
-		if(loginMember == null) 	return null;
+		// 2. 조회 결과가 없을 경우 return null;
+		if(loginMember == null) return null;
 		
-		// 입력된 비밀번호와 DB에 저장된 암호화된 비밀번호가 일치하지 않으면
-		if(!bcrypt.matches(inputMember.getMemberPw(), loginMember.getMemberPw())) {
+		// 3. 입력 받은 비밀번호(평문)와 
+		// 조회한 비밀번호(암호문)가 같지 않으면 return null;
+		if(!bcrypt.matches(inputMember.getMemberPw(), 
+							loginMember.getMemberPw())) {
 			return null;
 		}
 		
-		// 로그인된 회원 정보에서 비밀번호 제거 후 리턴
+		// 4. 비밀번호가 일치하면 비밀번호 제거 후 return
 		loginMember.setMemberPw(null);
 		return loginMember;
 	}
 	
 	
-	@Transactional
 	@Override
 	public int signup(Member inputMember, String[] memberAddress) {
 		
-		// memberAddress 가공
-		// 주소를 입력하지 않은 경우
-		if( inputMember.getMemberAddress().equals(",,") ) {
-			inputMember.setMemberAddress(null);
-			
-		} else { // 입력한 경우
-			
-			// memberAddress 배열 요소의 값을 하나의 문자열 변환
-			// (단, 요소 사이 구분자는 "^^^" )
-			String addr = String.join("^^^", memberAddress);
-			inputMember.setMemberAddress(addr);
+		// 주소가 입력되지 않은 경우
+		if(inputMember.getMemberAddress().equals(",,")) {
+			inputMember.setMemberAddress(null); // null로 변환
+		
+		} else { // 주소를 입력한 경우 
+			// 배열 -> 문자열로 합쳐서 inputMember에 추가
+			String address = String.join("^^^", memberAddress);
+			inputMember.setMemberAddress(address);
 		}
 		
-		// -> 주소 입력 X == null
-		// -> 주소 입력 O == "A^^^B^^^C"
 		
-		// --------------------------------------------------------
-		// 비밀번호 암호화 진행
+		// 비밀번호 암호화(DB에 암호화된 비밀번호 저장)
 		String encPw = bcrypt.encode(inputMember.getMemberPw());
 		inputMember.setMemberPw(encPw);
 		
-		// --------------------------------------------------------
-		
-		// DAO 호출
+		// Mapper 메서드 호출
 		return mapper.signup(inputMember);
 	}
 	
-	
-	
+	@Override
+	public Member quickLogin(String memberEmail) {
+		return mapper.login(memberEmail);
+	}
 	
 }
+
+
+
