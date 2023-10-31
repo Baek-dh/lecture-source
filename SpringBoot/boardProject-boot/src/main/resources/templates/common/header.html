@@ -67,17 +67,16 @@
 
 <nav>
     <ul>
-        <li><a href="#">공지사항</a></li>
-        <li><a href="#">자유 게시판</a></li>
-        <li><a href="#">질문 게시판</a></li>
-        <li><a href="#">FAQ</a></li>
-        <li><a href="#">1:1문의</a></li> 
+        <li><a href="/board/1">공지사항</a></li>
+        <li><a href="/board/2">자유 게시판</a></li>
+        <li><a href="/board/3">질문 게시판</a></li>
         
         <!-- 로그인한 회원의 권한(aurhority)이 2(관리자)인 경우에 노출 -->
         <li th:if="${ session.loginMember != null && session.loginMember.authority == 2}">
             <a href="/admin/main">관리자 페이지</a>
         </li> 
 
+        <!-- 빠른 로그인 -->
         <li><a href="/member/login/member01@naver.com">member01</a></li> 
         <li><a href="/member/login/test06@kh.com">test06</a></li> 
     </ul>
