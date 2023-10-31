@@ -33,4 +33,10 @@ public interface MyPageMapper {
 	 */
 	int secession(int memberNo);
 
+	/** 회원 프로필 이미지 변경
+	 * @param loginMember
+	 * @return result
+	 */
+	int updateProfileImg(Member loginMember);
+
 }

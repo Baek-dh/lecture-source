@@ -8,7 +8,8 @@ if(insertBtn != null){
         // location.href = "주소"
         // 해당 주소 요청(GET 방식)
 
-        location.href = `/board2/${location.pathname.split("/")[2]}/insert`;
+        // location.href = `/editBoard/${location.pathname.split("/")[2]}/insert`;
+        location.href = `/editBoard/${boardCode}/insert`;
                         //   /board2/1/insert
     });
 }

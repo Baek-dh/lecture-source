@@ -14,6 +14,12 @@ import edu.kh.project.board.model.dto.BoardImage;
 @Mapper
 public interface EditBoardMapper {
 	
+	/** 게시글 삭제
+	 * @param map
+	 * @return result
+	 */
+	public int deleteBoard(Map<String, Object> map);
+	
 	/** 게시글 삽입
 	 * @param board
 	 * @return boardNo
@@ -51,10 +57,5 @@ public interface EditBoardMapper {
 	 */
 	public int imageInsert(BoardImage img);
 
-	/** 게시글 삭제
-	 * @param map
-	 * @return result
-	 */
-	public int deleteBoard(Map<String, Object> map);
-	
+
 }

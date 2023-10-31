@@ -46,7 +46,7 @@
 		
 		keyProperty 속성 : selectKey 조회 결과를 저장할 파라미터의 필드
 	 -->
-<!--	
+	
 	<insert id="boardInsert" parameterType="Board" useGeneratedKeys="true">
 	
 		<selectKey order="BEFORE" resultType="_int"  keyProperty="boardNo">
@@ -63,8 +63,8 @@
               #{boardCode} )
               
 	</insert>
-	
-	-->
+
+
 	
 	<!-- 동적 SQL 중 <foreach> 
 		- 특정 SLQ 구문을 반복할 때 사용
@@ -81,7 +81,24 @@
 	 -->
 	
 	<!-- 이미지 리스트(여러 개) 삽입 -->
-<!--	<insert id="insertImageList" parameterType="list">
+	<insert id="insertImageList" parameterType="list">
+		INSERT INTO "BOARD_IMG"
+		
+		<foreach collection="list" item="img" separator=" UNION ">
+			SELECT  NEXT_IMG_NO(),
+				    #{img.imgPath}, 
+					#{img.imgRename}, 
+					#{img.imgOriginalName},
+			        #{img.imgOrder}, 
+			        #{img.boardNo}
+			FROM DUAL
+		</foreach>	
+	</insert>
+	
+	
+	<!-- 이미지 리스트(여러 개) 삽입(old) -->
+	<!--
+	<insert id="insertImageList" parameterType="list">
 		INSERT INTO "BOARD_IMG" 
 		SELECT SEQ_IMG_NO.NEXTVAL, A.*
 		FROM (
@@ -95,8 +112,8 @@
 				FROM DUAL
 			</foreach>	
 		) A
-	</insert>-->
-	
+	</insert>
+	-->
 	
 	<!-- 게시글 수정 -->
 <!--	<update id="boardUpdate">

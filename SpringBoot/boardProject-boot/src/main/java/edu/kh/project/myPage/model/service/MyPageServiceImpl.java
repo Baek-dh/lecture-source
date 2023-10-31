@@ -1,13 +1,18 @@
 package edu.kh.project.myPage.model.service;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import edu.kh.project.common.utility.Util;
 import edu.kh.project.member.model.dto.Member;
 import edu.kh.project.myPage.model.mapper.MyPageMapper;
 
@@ -20,6 +25,12 @@ public class MyPageServiceImpl implements MyPageService {
 	
 	@Autowired
 	private BCryptPasswordEncoder bcrypt;
+	
+	@Value("${my.member.webpath}")
+	private String webPath;
+	
+	@Value("${my.member.location}")
+	private String filePath;
 
 	@Override
 	public int info(Member updateMember, String[] memberAddress) {
@@ -87,5 +98,49 @@ public class MyPageServiceImpl implements MyPageService {
 	}
 	
 	
+	// 프로필 이미지 수정 서비스
+	@Override
+	public int updateProfileImg(MultipartFile profileImage, Member loginMember) throws IllegalStateException, IOException {
+		
+		// 프로필 이미지 변경 실패 대비
+		String temp = loginMember.getProfileImg(); // 이전 이미지 저장
+		
+		String rename = null; // 변경 이름 저장 변수
+		
+		if(profileImage.getSize() > 0) { // 업로드된 이미지가 있을 경우      
+			
+			// 1) 파일 이름 변경
+			rename = Util.fileRename(profileImage.getOriginalFilename());
+			
+			// 2) 바뀐 이름 loginMember에 세팅
+			loginMember.setProfileImg(webPath + rename);
+						//  /images/member/20231101123910_00001.jpg
+			
+		} else { // 없는 경우(x버튼)
+			loginMember.setProfileImg(null);
+			// 세션 이미지를 null로 변경해서 삭제
+		}
+		
+		
+		// 프로필 이미지 수정 mapper 메서드 호출
+		int result = mapper.updateProfileImg(loginMember);
+		
+		
+		if(result > 0) { // 성공
+			
+			// 새 이미지가 업로드된 경우
+			if(rename != null) {
+				profileImage.transferTo(new File(filePath + rename));
+			}
+			
+			
+		} else { // 실패
+			// 이전 이미지로 프로필 다시 세팅
+			loginMember.setProfileImg(temp);
+		}
+		
+		return result;
+	}
+
 	
 }

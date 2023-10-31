@@ -27,14 +27,18 @@
                 <form action="profile" method="POST" name="myPageFrm" id="profileFrm" enctype="multipart/form-data" >     
                     <div class="profile-image-area">
 
-                        <img src="/images/user.png" id="profileImage">
+
+                        <!-- <img th:if="${loginMember.profileImg == null}"  th:src="#{user.default.image}" id="profileImg">
+                        <img th:if="${loginMember.profileImg != null}"  th:src="${loginMember.profileImg}" id="profileImg"> -->
+                        
+                        <img th:with="user=#{user.default.image}" th:src="${loginMember.profileImg ?: user }" id="profileImg">
 
                     </div>
                     <span id="deleteImage">x</span>
 
                     <div class="profile-btn-area">
                         <label for="imageInput">이미지 선택</label>
-                        <input type="file" name="profileImage" id="imageInput" accept="image/*">
+                        <input type="file" name="profileImg" id="imageInput" accept="image/*">
                         <button>변경하기</button>
                     </div>
                     
@@ -57,6 +61,11 @@
     </main>
 
     <th:block th:replace="~{common/footer}"></th:block>
+
+    <script th:inline="javascript">
+        const loginMemberProfileImg = /*[[${loginMember.profileImg}]]*/ "프로필 이미지";
+        
+    </script>
 
     <script src="/js/myPage/myPage.js"></script>
 </body>

@@ -187,6 +187,11 @@
     <th:block th:replace="~{common/footer}"></th:block>
 
 
+    <script th:inline="javascript">
+        const boardCode = /*[[${boardCode}]]*/ "게시글 코드";
+
+    </script>
+
     <script src="/js/board/boardList.js"></script>
 
 </body>
