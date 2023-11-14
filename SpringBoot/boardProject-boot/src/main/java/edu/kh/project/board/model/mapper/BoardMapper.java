@@ -71,14 +71,14 @@ public interface BoardMapper {
 	 * @param paramMap
 	 * @return listCount
 	 */
-	public int getListCount(Map<String, Object> paramMap);
+	public int getSearchCount(Map<String, Object> paramMap);
 
 	/** 게시글 목록 조회(검색)
 	 * @param paramMap
 	 * @param rowBounds
 	 * @return boardList
 	 */
-	public List<Board> selectBoardList(Map<String, Object> paramMap, RowBounds rowBounds);
+	public List<Board> searchBoardList(Map<String, Object> paramMap, RowBounds rowBounds);
 
 	/** 헤더 검색
 	 * @param query

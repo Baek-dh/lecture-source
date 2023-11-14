@@ -10,7 +10,7 @@
 					select="selectImageList" 
 					column="BOARD_NO"
 					javaType="java.util.ArrayList"
-					ofType="BoardImage" />
+					ofType="BoardImg" />
 					
 		<collection property="commentList" 
 					select="selectCommentList" 
@@ -116,44 +116,44 @@
 	-->
 	
 	<!-- 게시글 수정 -->
-<!--	<update id="boardUpdate">
+	<update id="boardUpdate">
 		UPDATE "BOARD" SET
 		BOARD_TITLE = #{boardTitle},
 		BOARD_CONTENT = #{boardContent},
-		B_UPDATE_DATE = SYSDATE 
+		BOARD_UPDATE_DATE = SYSDATE 
 		WHERE BOARD_CODE = #{boardCode}
 		AND BOARD_NO = #{boardNo}
 	</update>
-	-->
+
 	
 	
 	<!-- 이미지 삭제 -->
-<!--	<delete id="imageDelete">
+	<delete id="imageDelete">
 		DELETE FROM "BOARD_IMG"
 		WHERE BOARD_NO = #{boardNo}
-		AND IMG_ORDER IN ( ${deleteList} )
-	</delete>-->
+		AND IMG_ORDER IN ( ${deleteOrder} )
+	</delete>
 	
 	
 	<!-- 이미지 수정 -->
-<!--	<update id="imageUpdate">
+	<update id="imageUpdate">
 		UPDATE "BOARD_IMG" SET
-		IMG_PATH = #{imagePath},
-		IMG_ORIGINAL = #{imageOriginal},
-		IMG_RENAME = #{imageReName}
+		IMG_PATH = #{imgPath},
+		IMG_ORIGINAL_NAME = #{imgOriginalName},
+		IMG_RENAME = #{imgRename}
 		WHERE BOARD_NO = #{boardNo}
-		AND IMG_ORDER = #{imageOrder}
-	</update>-->
+		AND IMG_ORDER = #{imgOrder}
+	</update>
 	
 	
 	<!-- 이미지 삽입 -->
-<!--	<insert id="imageInsert">
+	<insert id="imageInsert">
 		INSERT INTO "BOARD_IMG"
-		VALUES(SEQ_IMG_NO.NEXTVAL, #{imagePath}, #{imageReName},
-			#{imageOriginal}, #{imageOrder}, #{boardNo}
+		VALUES(SEQ_IMG_NO.NEXTVAL, #{imgPath}, #{imgRename},
+			#{imgOriginalName}, #{imgOrder}, #{boardNo}
 		)
 	</insert>
-	-->
+	
 	
 
 

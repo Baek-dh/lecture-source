@@ -35,6 +35,19 @@ public class FileConfig implements WebMvcConfigurer{
 	@Value("${my.images.resource-path}")
 	private String resourcePath; // 연결되는 외부 폴더 경로
 	
+	
+	// 요청 주소가 /images로 시작할 때 외부 경로 접근하기 ( WebMvcConfigurer 상속)
+	@Override
+	public void addResourceHandlers(ResourceHandlerRegistry registry) {
+		
+//		String connectPath ="/images/**";
+//		String resourcePath = "file:///D:/uploadImages/";
+		registry.addResourceHandler(connectPath)
+        .addResourceLocations(resourcePath);
+	}
+	
+	
+	
 	// MultipartResolver 설정 bean 생성
 	@Bean
 	public MultipartConfigElement multipartConfigElement() {
@@ -59,16 +72,7 @@ public class FileConfig implements WebMvcConfigurer{
 		return multipartResolver;
 	}
 
-	// 요청 주소가 /images로 시작할 때 외부 경로 접근하기 ( WebMvcConfigurer 상속)
-	@Override
-	public void addResourceHandlers(ResourceHandlerRegistry registry) {
-		
-//		String connectPath ="/images/**";
-//		String resourcePath = "file:///D:/uploadImages/";
-		registry.addResourceHandler(connectPath)
-        .addResourceLocations(resourcePath);
-	}
-	
+
 	
 	
 	

@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import edu.kh.project.board.model.dto.Board;
-import edu.kh.project.board.model.dto.BoardImage;
+import edu.kh.project.board.model.dto.BoardImg;
 
 @Mapper
 public interface EditBoardMapper {
@@ -30,7 +30,7 @@ public interface EditBoardMapper {
 	 * @param uploadList
 	 * @return result
 	 */
-	public int insertImageList(List<BoardImage> uploadList);
+	public int insertImageList(List<BoardImg> uploadList);
 
 	/** 게시글 수정
 	 * @param board
@@ -49,13 +49,13 @@ public interface EditBoardMapper {
  	 * @param img
 	 * @return rowCount
 	 */
-	public int imageUpdate(BoardImage img);
+	public int imageUpdate(BoardImg img);
 
 	/** 이미지 삽입(1개)
 	 * @param img
 	 * @return rowCount
 	 */
-	public int imageInsert(BoardImage img);
+	public int imageInsert(BoardImg img);
 
 
 }

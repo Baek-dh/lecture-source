@@ -1,18 +1,21 @@
+// REST(REpresentaional State Transfer) API
+// - 자원을 이름(주소)으로 구분(REpresentaional)하여
+//   자원의 상태(State)를 주고 받는 것(Transfer)
+
+// -> 주소를 명시하고 
+// Http Method(GET, POST, PUT, DELETE)를 이용해
+// 지정된 자원에 대한 CRUD 진행
+
+// Create : 생성, 삽입(POST)
+// Read   : 조회 (GET)
+// Update : 수정 (PUT, PETCH)
+// DELETE : 삭제 (DELETE)
+
+
+
 // 댓글 목록 조회
-function selectCommentList(){
+const selectCommentList = () => {
 
-    // REST(REpresentaional State Transfer) API
-    // - 자원을 이름(주소)으로 구분(REpresentaional)하여
-    //   자원의 상태(State)를 주고 받는 것(Transfer)
-
-    // -> 주소를 명시하고 
-    // Http Method(GET, POST, PUT, DELETE)를 이용해
-    // 지정된 자원에 대한 CRUD 진행
-    
-    // Create : 생성, 삽입(POST)
-    // Read   : 조회 (GET)
-    // Update : 수정 (PUT, PETCH)
-    // DELETE : 삭제 (DELETE)
 
     // 기본적으로 form태그는 GET/POST만 지원
     
@@ -36,85 +39,90 @@ function selectCommentList(){
             if(comment.parentNo != 0)  commentRow.classList.add("child-comment");
 
 
-            // 작성자
-            const commentWriter = document.createElement("p");
-            commentWriter.classList.add("comment-writer");
+            // 삭제된 댓글이지만 자식 댓글 때문에 조회된 경우
+            if(comment.commentDelFl == 'Y') commentRow.innerText = "삭제된 댓글 입니다";
 
-            // 프로필 이미지
-            const profileImage = document.createElement("img");
+            // 삭제되지 않은 댓글인 경우 (댓글, 버튼 생성)
+            else{
+                // 작성자
+                const commentWriter = document.createElement("p");
+                commentWriter.classList.add("comment-writer");
 
-            if( comment.profileImage != null ){ // 프로필 이미지가 있을 경우
-                profileImage.setAttribute("src", comment.profileImage);
-            }else{ // 없을 경우 == 기본이미지
-                profileImage.setAttribute("src", "/resources/images/user.png");
-            }
+                // 프로필 이미지
+                const profileImage = document.createElement("img");
 
-            // 작성자 닉네임
-            const memberNickname = document.createElement("span");
-            memberNickname.innerText = comment.memberNickname;
-            
-            // 작성일
-            const commentDate = document.createElement("span");
-            commentDate.classList.add("comment-date");
-            commentDate.innerText =  "(" + comment.commentCreateDate + ")";
+                if( comment.profileImage != null ){ // 프로필 이미지가 있을 경우
+                    profileImage.setAttribute("src", comment.profileImage);
+                }else{ // 없을 경우 == 기본이미지
+                    profileImage.setAttribute("src", userDefaultImage);
+                }
 
-            // 작성자 영역(p)에 프로필,닉네임,작성일 마지막 자식으로(append) 추가
-            commentWriter.append(profileImage , memberNickname , commentDate);
-
-            
-
-            // 댓글 내용
-            const commentContent = document.createElement("p");
-            commentContent.classList.add("comment-content");
-            commentContent.innerHTML = comment.commentContent;
-
-            // 행에 작성자, 내용 추가
-            commentRow.append(commentWriter, commentContent);
-
-            
-            // 로그인이 되어있는 경우 답글 버튼 추가
-            if(loginMemberNo != ""){
-                // 버튼 영역
-                const commentBtnArea = document.createElement("div");
-                commentBtnArea.classList.add("comment-btn-area");
-
-                // 답글 버튼
-                const childCommentBtn = document.createElement("button");
-                childCommentBtn.setAttribute("onclick", "showInsertComment("+comment.commentNo+", this)");
+                // 작성자 닉네임
+                const memberNickname = document.createElement("span");
+                memberNickname.innerText = comment.memberNickname;
                 
-                childCommentBtn.innerText = "답글";
+                // 작성일
+                const commentDate = document.createElement("span");
+                commentDate.classList.add("comment-date");
+                commentDate.innerText =   comment.commentWriteDate;
 
-                // 버튼 영역에 답글 버튼 추가
-                commentBtnArea.append(childCommentBtn);
+                // 작성자 영역(p)에 프로필,닉네임,작성일 마지막 자식으로(append) 추가
+                commentWriter.append(profileImage , memberNickname , commentDate);
 
-                // 로그인한 회원번호와 댓글 작성자의 회원번호가 같을 때만 버튼 추가
-                if( loginMemberNo == comment.memberNo   ){
-
-                    // 수정 버튼
-                    const updateBtn = document.createElement("button");
-                    updateBtn.innerText = "수정";
-
-                    // 수정 버튼에 onclick 이벤트 속성 추가
-                    updateBtn.setAttribute("onclick", "showUpdateComment("+comment.commentNo+", this)");                        
-
-
-                    // 삭제 버튼
-                    const deleteBtn = document.createElement("button");
-                    deleteBtn.innerText = "삭제";
-                    // 삭제 버튼에 onclick 이벤트 속성 추가
-                    deleteBtn.setAttribute("onclick", "deleteComment("+comment.commentNo+")");                       
-
-
-                    // 버튼 영역 마지막 자식으로 수정/삭제 버튼 추가
-                    commentBtnArea.append(updateBtn, deleteBtn);
-
-                } // if 끝
                 
 
-                // 행에 버튼영역 추가
-                commentRow.append(commentBtnArea); 
-            }
+                // 댓글 내용
+                const commentContent = document.createElement("p");
+                commentContent.classList.add("comment-content");
+                commentContent.innerHTML = comment.commentContent;
+
+                // 행에 작성자, 내용 추가
+                commentRow.append(commentWriter, commentContent);
+
             
+                // 로그인이 되어있는 경우 답글 버튼 추가
+                if(loginCheck){
+                    // 버튼 영역
+                    const commentBtnArea = document.createElement("div");
+                    commentBtnArea.classList.add("comment-btn-area");
+
+                    // 답글 버튼
+                    const childCommentBtn = document.createElement("button");
+                    childCommentBtn.setAttribute("onclick", "showInsertComment("+comment.commentNo+", this)");
+                    
+                    childCommentBtn.innerText = "답글";
+
+                    // 버튼 영역에 답글 버튼 추가
+                    commentBtnArea.append(childCommentBtn);
+
+                    // 로그인한 회원번호와 댓글 작성자의 회원번호가 같을 때만 버튼 추가
+                    if( loginMemberNo == comment.memberNo   ){
+
+                        // 수정 버튼
+                        const updateBtn = document.createElement("button");
+                        updateBtn.innerText = "수정";
+
+                        // 수정 버튼에 onclick 이벤트 속성 추가
+                        updateBtn.setAttribute("onclick", "showUpdateComment("+comment.commentNo+", this)");                        
+
+
+                        // 삭제 버튼
+                        const deleteBtn = document.createElement("button");
+                        deleteBtn.innerText = "삭제";
+                        // 삭제 버튼에 onclick 이벤트 속성 추가
+                        deleteBtn.setAttribute("onclick", "deleteComment("+comment.commentNo+")");                       
+
+
+                        // 버튼 영역 마지막 자식으로 수정/삭제 버튼 추가
+                        commentBtnArea.append(updateBtn, deleteBtn);
+
+                    } // if 끝
+                    
+
+                    // 행에 버튼영역 추가
+                    commentRow.append(commentBtnArea); 
+                }
+            }
 
             // 댓글 목록(ul)에 행(li)추가
             commentList.append(commentRow);
@@ -137,7 +145,7 @@ const commentContent = document.getElementById("commentContent");
 addComment.addEventListener("click", e => { // 댓글 등록 버튼이 클릭이 되었을 때
 
     // 1) 로그인이 되어있나? -> 전역변수 memberNo 이용
-    if(loginMemberNo == ""){ // 로그인 X
+    if(!loginCheck){ // 로그인 X
         alert("로그인 후 이용해주세요.");
         return;
     }

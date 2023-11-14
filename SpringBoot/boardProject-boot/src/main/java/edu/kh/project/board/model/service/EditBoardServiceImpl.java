@@ -3,10 +3,10 @@ package edu.kh.project.board.model.service;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.tomcat.util.http.fileupload.FileUploadException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
@@ -14,7 +14,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import edu.kh.project.board.model.dto.Board;
-import edu.kh.project.board.model.dto.BoardImage;
+import edu.kh.project.board.model.dto.BoardImg;
+import edu.kh.project.board.model.exception.ImageDeleteException;
 import edu.kh.project.board.model.mapper.EditBoardMapper;
 import edu.kh.project.common.utility.Util;
 import lombok.RequiredArgsConstructor;
@@ -32,11 +33,10 @@ public class EditBoardServiceImpl implements EditBoardService{
 	private String webPath;
 	
 	@Value("${my.board.location}")
-	private String filePath;
+	private String folderPath;
 	
 	
 	// 게시글 삭제
-	@Transactional(rollbackFor = Exception.class)
 	@Override
 	public int deleteBoard(Map<String, Object> map) {
 		return mapper.deleteBoard(map);
@@ -60,7 +60,7 @@ public class EditBoardServiceImpl implements EditBoardService{
 		//  업로드된 이미지가 있다면 BOARD_IMG 테이블에 삽입하는 Mapper 호출
 		
 		// 실제 업로드된 파일의 정보를 기록할 List
-		List<BoardImage> uploadList = new ArrayList<BoardImage>();
+		List<BoardImg> uploadList = new ArrayList<BoardImg>();
 		
 		
 		// images에 담겨있는 파일 중 실제 업로드된 파일만 분류
@@ -69,7 +69,7 @@ public class EditBoardServiceImpl implements EditBoardService{
 			// i번째 요소에 업로드한 파일이 있다면
 			if(images.get(i).getSize() > 0 ) {
 				
-				BoardImage img = new BoardImage();
+				BoardImg img = new BoardImg();
 				
 				// img에 파일 정보를 담아서 uploadList에 추가
 				img.setImgPath(webPath); // 웹 접근 경로
@@ -83,7 +83,7 @@ public class EditBoardServiceImpl implements EditBoardService{
 				img.setImgRename( Util.fileRename(fileName) ); // 변경명    
 				
 				
-				// 파일 객체를 BoardImage 필드가 참조하게 주소를 저장
+				// 파일 객체를 BoardImg 필드가 참조하게 주소를 저장
 				img.setUploadFile(images.get(i));
 				
 				uploadList.add(img);
@@ -105,30 +105,106 @@ public class EditBoardServiceImpl implements EditBoardService{
 			// == 전체 insert 성공
 			if(result == uploadList.size()) {
 				
-				// 서버에 파일을 저장 (transferTo())
-//				for(int i=0 ; i< uploadList.size(); i++) {
-//					
-//					int index = uploadList.get(i).getImgOrder();
-//					
-//					// 파일로 변환
-//					String rename = uploadList.get(i).getImgReName();
-//					
-//					images.get(index).transferTo( new File(filePath + rename)  );                    
-//				}
-//				
-				
-				for(BoardImage img : uploadList) {
-					img.getUploadFile().transferTo(new File(filePath + img.getImgRename()));
+				for(BoardImg img : uploadList) {
+					img.getUploadFile().transferTo(new File(folderPath + img.getImgRename()));
 				}
 				
 			} else { // 일부 또는 전체 insert 실패
 				
 				// ** 웹 서비스 수행 중 1개라도 실패하면 전체 실패 **
-				throw new FileUploadException(); // 예외 강제 발생
+				throw new RuntimeException(); // 예외 강제 발생
 			}
 		}
 		
 		return boardNo; 
 	}
 	
+	
+	// 게시글 수정
+	@Override
+	public int boardUpdate(Board board, List<MultipartFile> images, String deleteOrder) throws IllegalStateException, IOException {
+		
+		// 1. 게시글 제목/내용만 수정
+		int result = mapper.boardUpdate(board);
+		
+		
+		// 2. 게시글 부분이 수정 성공 했을 때
+		if(result > 0) {
+			
+			if(!deleteOrder.equals("")) { // 삭제할 이미지가 있다면
+				
+				// 3. deleteList에 작성된 이미지 모두 삭제
+				Map<String, Object> deleteMap = new HashMap<>();
+				deleteMap.put("boardNo", board.getBoardNo());
+				deleteMap.put("deleteOrder", deleteOrder);
+				
+				result = mapper.imageDelete(deleteMap);
+				
+				if(result == 0) { // 이미지 삭제 실패 시 전체 롤백
+									// -> 예외 강제로 발생
+					throw new ImageDeleteException();
+				}
+			}
+			
+			
+			// 4. 새로 업로드된 이미지 분류 작업
+			
+			// images : 실제 파일이 담긴 List
+			//         -> input type="file" 개수만큼 요소가 존재
+			//         -> 제출된 파일이 없어서 MultipartFile 객체가 존재
+			
+			List<BoardImg> uploadList = new ArrayList<>();
+			
+			for(int i=0 ; i<images.size(); i++) {
+				
+				if(images.get(i).getSize() > 0) { // 업로드된 파일이 있을 경우
+					
+					// BoardImg 객체를 만들어 값 세팅 후 
+					// uploadList에 추가
+					BoardImg img = new BoardImg();
+					
+					// img에 파일 정보를 담아서 uploadList에 추가
+					img.setImgPath(webPath); // 웹 접근 경로
+					img.setBoardNo(board.getBoardNo()); // 게시글 번호
+					img.setImgOrder(i); // 이미지 순서
+					
+					// 파일 원본명
+					String fileName = images.get(i).getOriginalFilename();
+					
+					img.setImgOriginalName(fileName); // 원본명
+					img.setImgRename( Util.fileRename(fileName) ); // 변경명    
+					
+					// 파일 객체를 BoardImg 필드가 참조하게 주소를 저장
+					img.setUploadFile(images.get(i));
+					
+					uploadList.add(img);
+					
+					// 오라클은 다중 UPDATE를 지원하지 않기 때문에
+					// 하나씩 UPDATE 수행
+					
+					result = mapper.imageUpdate(img);
+					
+					if(result == 0) {
+						// 수정 실패 == DB에 이미지가 없었다 
+						// -> 이미지를 삽입
+						result = mapper.imageInsert(img);
+					}
+				}
+			}
+			
+			
+			// 5. uploadList에 있는 이미지들만 서버에 저장(transferTo())
+			if(!uploadList.isEmpty()) {
+				for(BoardImg img : uploadList) {
+					img.getUploadFile().transferTo(new File(folderPath + img.getImgRename()));
+				}
+				
+			}
+		}
+		
+		
+		return result;
+		
+		
+	}
 }

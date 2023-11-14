@@ -2,7 +2,9 @@ package edu.kh.project.main.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import edu.kh.project.member.model.dto.Member;
 import lombok.extern.slf4j.Slf4j;
@@ -34,8 +36,8 @@ public class MainController {
 		// 로그 출력 방법
 		// log.debug("문자열");
 		
-		log.debug("로그는 이렇게 찍을 수 있습니다");
-		log.debug("메인 페이지 요청이 왔습니다");
+//		log.debug("로그는 이렇게 찍을 수 있습니다");
+//		log.debug("메인 페이지 요청이 왔습니다");
 		
 		/* Thymeleaf 템플릿 엔진 사용 시 접두사, 접미사 */
 		// 접두사 : classpath:/templates/
@@ -47,6 +49,26 @@ public class MainController {
 		return "common/main";
 	}
 	
+	
+	/** 로그인하지 않고 로그인 전용 페이지 접근 시
+	 * @param ra
+	 * @return 메인페이지로 리다이렉트
+	 */
+	@GetMapping("loginError")
+	public String loginError(RedirectAttributes ra) {
+		ra.addFlashAttribute("message", "로그인 후 이용 해주세요");
+		return "redirect:/"; 
+	}
+	
+	/** 관리자 권한이 없는 상태에서 관리자 페이지 접근 시
+	 * @param ra
+	 * @return
+	 */
+	@GetMapping("adminError")
+	public String adminError(RedirectAttributes ra) {
+		ra.addFlashAttribute("message", "정상 접근이 아닙니다");
+		return "redirect:/"; 
+	}
 }
 
 

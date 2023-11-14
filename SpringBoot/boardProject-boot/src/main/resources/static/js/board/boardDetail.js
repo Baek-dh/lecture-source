@@ -70,7 +70,7 @@ if(deleteBtn != null){
             location.href 
             = location.pathname.replace("board","editBoard")
                 + "/delete";
-            //   /board2/1/2006/delete (GET)
+            //   /editBoard/1/2006/delete (GET)
 
             // 삭제 서비스 호출 성공 시 redirect:/board/{boardCode}
             // + RedirectAttributes 이용해서 "삭제 되었습니다" alert 출력
@@ -94,7 +94,7 @@ if(updateBtn != null){
             = location.pathname.replace("board","editBoard")
                 + "/update"
                 + location.search
-        // /board2/1/2006/update?cp=1 (GET)
+        // /editBoard/1/2006/update?cp=1 (GET)
     });
 }
 

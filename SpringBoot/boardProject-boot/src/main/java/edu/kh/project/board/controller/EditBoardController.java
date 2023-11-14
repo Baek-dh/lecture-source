@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,16 +22,19 @@ import edu.kh.project.board.model.dto.Board;
 import edu.kh.project.board.model.service.BoardService;
 import edu.kh.project.board.model.service.EditBoardService;
 import edu.kh.project.member.model.dto.Member;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+
+@Slf4j
 @Controller
-@RequestMapping("/editBoard")
+@RequestMapping("editBoard")
 @SessionAttributes({"loginMember"})
 @RequiredArgsConstructor
 public class EditBoardController {
 
 	private final EditBoardService service;
+	private final BoardService boardService;
 	
 	
 	/** 게시글 삭제
@@ -42,17 +44,24 @@ public class EditBoardController {
 	 * @param referer
 	 * @return
 	 */
-	@GetMapping("/{boardCode:[0-9]+}/{boardNo}/delete")
+	@GetMapping("{boardCode:[0-9]+}/{boardNo}/delete")
 	public String deleteBoard(
 		 @PathVariable("boardCode") int boardCode
 		,@PathVariable("boardNo") int boardNo
-		,RedirectAttributes ra
-		,@RequestHeader("referer") String referer	) {
+		,RedirectAttributes ra,
+		@SessionAttribute(value="loginMember", required=false) Member loginMember,
+		@RequestHeader("referer") String referer	) {
+		
+		// 로그인 상태가 아닌 경우 삭제 진행 X
+		if(loginMember == null) {
+			ra.addFlashAttribute("message", "로그인 후 이용해주세요");
+			return "redirect:/member/login";
+		}
 		
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("boardCode", boardCode);
 		map.put("boardNo", boardNo);
-		
+		map.put("memberNo", loginMember.getMemberNo());
 		
 		int result = service.deleteBoard(map);
 		
@@ -76,7 +85,7 @@ public class EditBoardController {
 	 * @param boardCode
 	 * @return
 	 */
-	@GetMapping("/{boardCode:[0-9]+}/insert")
+	@GetMapping("{boardCode:[0-9]+}/insert")
 	public String boardInsert(@PathVariable("boardCode") int boardCode) {
 		// @PathVariable : 주소 값 가져오기 + reqeust scope에 값 올리기
 		
@@ -94,7 +103,7 @@ public class EditBoardController {
 	 * @throws IllegalStateException
 	 * @throws IOException
 	 */
-	@PostMapping("/{boardCode:[0-9]+}/insert")
+	@PostMapping("{boardCode:[0-9]+}/insert")
 	public String boardInsert(
 		 @PathVariable("boardCode") int boardCode
 		, Board board // 커멘드 객체(필드에 파라미터 담겨있음!)
@@ -135,7 +144,7 @@ public class EditBoardController {
 		String message = null;
 		String path = "redirect:";
 		
-		if(boardNo > 0) { // 성공 시
+		if(boardNo > 0) { // 성공 시 
 			message = "게시글이 등록 되었습니다.";
 			path += "/board/" + boardCode + "/" + boardNo;
 		}else {
@@ -149,71 +158,88 @@ public class EditBoardController {
 		
 		return path;
 	}
-//	
-//	
-//	// 게시글 수정 화면 전환
-//	@GetMapping("/{boardCode:[0-9]+}/{boardNo}/update")
-//	public String boardUpdate(
-//		 @PathVariable("boardCode") int boardCode	
-//		,@PathVariable("boardNo") int boardNo
-//		,Model model) {
-//		// Model : 데이터 전달용 객체(기본 scope : request)
-//		
-//		Map<String, Object> map = new HashMap<>();
-//		map.put("boardCode", boardCode);
-//		map.put("boardNo", boardNo);
-//		
-////		Board board = boardService.selectBoard(map);
+	
+	
+	/** 게시글 수정 화면 전환
+	 * @param boardCode
+	 * @param boardNo
+	 * @param model
+	 * @return
+	 */
+	@GetMapping("/{boardCode:[0-9]+}/{boardNo:[0-9]+}/update")
+	public String boardUpdate(
+		 @PathVariable("boardCode") int boardCode	
+		,@PathVariable("boardNo") int boardNo
+		,Model model) {
+		// Model : 데이터 전달용 객체(기본 scope : request)
+		
+		Map<String, Object> map = new HashMap<>();
+		map.put("boardCode", boardCode);
+		map.put("boardNo", boardNo);
+		
+		Board board = boardService.selectBoard(map); // 게시글 상세 조회
 //		Board board = null;
-//		
-//		//if(로그인회원번호 != 작성자 번호) 리다이렉트
-//		
-//		model.addAttribute("board", board);
-//		// forward(요청 위임) -> request scope 유지
-//		return "board/boardUpdate";
-//	}
-//	
-//	
-//	// 게시글 수정
-//	@PostMapping("/{boardCode:[0-9]+}/{boardNo}/update")
-//	public String boardUpdate(
-//		 Board board // 커맨드 객체(name==필드 경우 필드에 파라미터 세팅)	
-//		,@RequestParam(value="cp", required=false, defaultValue="1") int cp // 쿼리스트링 유지
-//		,@RequestParam(value="deleteList", required=false) String deleteList // 삭제할 이미지 순서
-//		,@RequestParam(value="images", required=false) List<MultipartFile> images // 업로드된 파일 리스트
-//		,@PathVariable("boardCode") int boardCode
-//		,@PathVariable("boardNo") int boardNo
-//		,RedirectAttributes ra // 리다이렉트 시 값 전달용
-//		) throws IllegalStateException, IOException {
-//		
-//		// 1) boardCode, boardNo를 커맨드 객체(board)에 세팅
-//		board.setBoardCode(boardCode);
-//		board.setBoardNo(boardNo);
-//		
-//		// board(boardCode, boardNo, boardTitle, boardContent)
-//		
-//		// 2) 이미지 서버 저장 경로, 웹 접근 경로
-//		
-//		// 3) 게시글 수정 서비스 호출
-//		int rowCount = service.boardUpdate(board, images, deleteList);
-//		
-//		// 4) 결과에 따라 message, path 설정
-//		String message = null;
-//		String path = "redirect:";
-//		
-//		if(rowCount > 0) {
-//			message = "게시글이 수정되었습니다.";
-//			path += "/board/"+boardCode+"/"+boardNo+"?cp=" + cp; // 상세조회 페이지
-//		}else {
-//			message = "게시글 수정 실패";
-//			path += "update";
-//		}
-//		
-//		ra.addFlashAttribute("message", message);
-//		
-//		return path;
-//	}
-//	
+		
+		//if(로그인회원번호 != 작성자 번호) 리다이렉트
+		
+		model.addAttribute("board", board);
+		
+		// forward(요청 위임) -> request scope 유지
+		return "board/boardUpdate";
+	}
+	
+	
+	/** 게시글 수정
+	 * @param board
+	 * @param querystring
+	 * @param deleteList
+	 * @param images
+	 * @param boardCode
+	 * @param boardNo
+	 * @param ra
+	 * @return
+	 * @throws IllegalStateException
+	 * @throws IOException
+	 */
+	@PostMapping("/{boardCode:[0-9]+}/{boardNo}/update")
+	public String boardUpdate(
+		 Board board // 커맨드 객체(name==필드 경우 필드에 파라미터 세팅)	
+		,String querystring// 쿼리스트링 유지
+		,@RequestParam(value="deleteOrder", required=false) String deleteOrder // 삭제할 이미지 순서
+		,@RequestParam(value="images", required=false) List<MultipartFile> images // 업로드된 파일 리스트
+		,@PathVariable("boardCode") int boardCode
+		,@PathVariable("boardNo") int boardNo
+		,RedirectAttributes ra // 리다이렉트 시 값 전달용
+		) throws IllegalStateException, IOException {
+		
+		// 1) boardCode, boardNo를 커맨드 객체(board)에 세팅
+		board.setBoardCode(boardCode);
+		board.setBoardNo(boardNo);
+		
+		// board(boardCode, boardNo, boardTitle, boardContent)
+		
+		// 2) 이미지 서버 저장 경로, 웹 접근 경로
+		
+		// 3) 게시글 수정 서비스 호출
+		int rowCount = service.boardUpdate(board, images, deleteOrder);
+		
+		// 4) 결과에 따라 message, path 설정
+		String message = null;
+		String path = "redirect:";
+		
+		if(rowCount > 0) {
+			message = "게시글이 수정되었습니다.";
+			path += "/board/"+boardCode+"/"+boardNo + querystring; // 상세조회 페이지
+		}else {
+			message = "게시글 수정 실패";
+			path += "update";
+		}
+		
+		ra.addFlashAttribute("message", message);
+		
+		return path;
+	}
+	
 	
 
 	

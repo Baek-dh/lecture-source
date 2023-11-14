@@ -197,12 +197,11 @@ public class MyPageController {
 	 * */
 	
 	// 프로필 이미지 수정
-	@PostMapping("/profile")
+	@PostMapping("profile")
 	public String updateProfile(
 		@RequestParam("profileImg") MultipartFile profileImg // 업로드 파일
 		, @SessionAttribute("loginMember") Member loginMember // 로그인 회원
 		, RedirectAttributes ra // 리다이렉트 시 메세지 전달
-		, HttpSession session // 세션 객체
 		)   throws IllegalStateException, IOException{
 		
 		

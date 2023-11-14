@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>서버 에러 발생</title>
+
+    <style>
+        img{  
+            margin-top: 200px;
+            height: 50vh; 
+            display: block;
+            margin: auto;
+        }
+
+        #btn-area{ text-align: center;  }
+    </style>
+</head>
+<body>
+    <img src="/images/error/500.png">    
+
+    <div id="btn-area">
+        <a href="/">메인 페이지</a>
+        <button onclick="history.back()">이전 페이지</button>
+    </div>
+</body>
+</html>

@@ -169,10 +169,14 @@
                 타임리프 코드인 #{} 구문을 해석해서
                 현재 태그의 src 속성의 값으로 삽입
               -->
-              <img th:src="#{user.default.image}" id="memberProfile">
+              <th:block th:if="${session.loginMember.profileImg == null}">
+                <img th:src="#{user.default.image}" id="memberProfile">
+              </th:block>
   
               <!-- 프로필 이미지가 있으면 프로필 이미지(작성 예정) -->
-  
+              <th:block th:if="${session.loginMember.profileImg != null}">
+                <img th:src="${session.loginMember.profileImg}" id="memberProfile">
+            </th:block>
             </a>
   
             <div class="my-info" th:object="${session.loginMember}">
@@ -196,6 +200,10 @@
 
   <!-- common/footer.html의 모든 내용을 읽어와 th:block 태그와 바꿈 -->
   <th:block th:replace="~{common/footer}"></th:block>
+
+
+    <!-- SockJS 추가 -->
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
 
   <!-- main.js 추가 -->
   <script src="/js/main.js"></script>

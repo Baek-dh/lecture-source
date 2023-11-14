@@ -47,7 +47,7 @@ public interface BoardService {
 	 * @param cp
 	 * @return boardList
 	 */
-//	Map<String, Object> selectBoardList(Map<String, Object> paramMap, int cp);
+	Map<String, Object> searchBoardList(Map<String, Object> paramMap, int cp);
 	
 	/** 헤더 검색
 	 * @param query

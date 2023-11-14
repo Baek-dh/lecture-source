@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +19,7 @@ import edu.kh.project.myPage.model.mapper.MyPageMapper;
 
 @Transactional
 @Service
+@PropertySource("classpath:/config.properties")
 public class MyPageServiceImpl implements MyPageService {
 
 	@Autowired
@@ -30,7 +32,7 @@ public class MyPageServiceImpl implements MyPageService {
 	private String webPath;
 	
 	@Value("${my.member.location}")
-	private String filePath;
+	private String folderPath;
 
 	@Override
 	public int info(Member updateMember, String[] memberAddress) {
@@ -130,7 +132,7 @@ public class MyPageServiceImpl implements MyPageService {
 			
 			// 새 이미지가 업로드된 경우
 			if(rename != null) {
-				profileImage.transferTo(new File(filePath + rename));
+				profileImage.transferTo(new File(folderPath + rename));
 			}
 			
 			

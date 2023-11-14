@@ -12,14 +12,15 @@ import org.springframework.web.bind.annotation.RestController;
 
 import edu.kh.project.board.model.dto.Comment;
 import edu.kh.project.board.model.service.CommentService;
+import lombok.RequiredArgsConstructor;
 
 // @Controller + @ResponseBody 
 @RestController // 요청/응답 처리(단, 모든 요청 응답은 비동기)
 				// -> REST API 구축하기 위한 Controller
+@RequiredArgsConstructor
 public class CommentController {
 	
-	@Autowired
-	private CommentService service;
+	private final CommentService service;
 	
 	// 댓글 목록 조회
 	@GetMapping(value="/comment", produces="application/json; charset=UTF-8")

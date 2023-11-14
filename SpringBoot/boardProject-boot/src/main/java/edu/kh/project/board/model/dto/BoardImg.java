@@ -9,7 +9,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class BoardImage {
+public class BoardImg {
 	private int imgNo;
 	private String imgPath;
 	private String imgRename;

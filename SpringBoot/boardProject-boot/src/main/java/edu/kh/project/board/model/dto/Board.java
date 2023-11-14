@@ -37,8 +37,9 @@ public class Board {
     private String thumbnail;
     
     private String profileImg;
+    
     // 이미지 목록
-    private List<BoardImage> imageList;
+    private List<BoardImg> imageList;
     
     // 댓글 목록
     private List<Comment> commentList;
