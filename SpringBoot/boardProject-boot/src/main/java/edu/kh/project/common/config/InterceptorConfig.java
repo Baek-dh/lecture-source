@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import edu.kh.project.common.interceptor.BoardNameInterceptor;
 import edu.kh.project.common.interceptor.BoardTypeInterceptor;
 
 
@@ -14,6 +15,11 @@ public class InterceptorConfig implements WebMvcConfigurer{
 	@Bean
 	public BoardTypeInterceptor boardTypeInterceptor() {
 		return new BoardTypeInterceptor();
+	}
+	@Bean
+	
+	public BoardNameInterceptor boardNameInterceptor() {
+		return new BoardNameInterceptor();
 	}
 	
 	/*
@@ -30,6 +36,11 @@ public class InterceptorConfig implements WebMvcConfigurer{
 		registry.addInterceptor( boardTypeInterceptor() )
 		.addPathPatterns("/**") // 가로챌 경로 지정(여러개 작성 시 ,로 구분)
 		.excludePathPatterns("/css/**", "/images/**", "/js/**", "/favicon.ico"); // 가로채지 않을 경로
+		
+		
+		// Bean으로 등록된 BoardNameInterceptor를 얻어와 인터셉터로 등록
+		registry.addInterceptor( boardNameInterceptor() )
+		.addPathPatterns("/board/**", "/editBoard/**"); // 가로챌 경로 지정(여러개 작성 시 ,로 구분)
 		
 		
 		/*

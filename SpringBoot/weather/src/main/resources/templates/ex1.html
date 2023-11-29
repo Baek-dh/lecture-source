@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript + ajax를 이용한 비동기식 요청</title>
+
+    <link rel="stylesheet" href="/css/weather.css">
+</head>
+<body>
+    
+    <h1>JavaScript + ajax를 이용한 비동기식 요청</h1>
+
+    <label for="region">지역 선택</label>
+    <select name="region" id="region">
+        <option>서울</option>
+        <option>경기</option>
+        <option>인천</option>
+        <option>제주</option>
+        <option>세종</option>
+        <option>광주</option>
+        <option>대구</option>
+        <option>대전</option>
+        <option>부산</option>
+        <option>울산</option>
+        <option>강원</option>
+        <option>경북</option>
+        <option>경남</option>
+        <option>전북</option>
+        <option>전남</option>
+        <option>충북</option>
+        <option>충남</option>
+    </select>
+
+    <hr>
+
+    <div>
+        <h2 id="regionName">서울</h2>
+
+
+        <div class="current-weather">
+           <!--  <h1>12℃</h1>
+            <p>흐림</p>
+            <p>습도</p>
+            <p>강수형태</p>
+            <p>강수량</p> -->
+        </div>
+
+        
+        
+        <div class="container">
+            <div class="side">
+                <p>시간</p>
+                <p>하늘상태</p>
+                <p>기온(℃)</p>
+                <p>강수확률(%)</p>
+                <p>습도(%)</p>
+            </div>
+
+            <img src="/images/ajax-loading.gif" id="loading">
+
+            <div class="container-body">
+                <!-- <div class="col">
+                    <div class="date-mark">20231128</div>
+                    <p>12시</p>
+                    <p>맑음</p>
+                    <p>2</p>
+                    <p>0</p>
+                    <p>40</p>
+                </div> -->
+            </div>
+        </div>
+    </div>
+
+
+    <script src="/js/weather.js"></script>
+</body>
+</html>

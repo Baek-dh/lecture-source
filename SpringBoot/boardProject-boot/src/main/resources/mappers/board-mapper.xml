@@ -289,4 +289,14 @@
 		WHERE BOARD_NO = #{boardNo}
 	</update>
 	
+	
+	
+	 <select id="selectDbImageList" resultType="string">
+		SELECT SUBSTR(PROFILE_IMG, INSTR(PROFILE_IMG, '/', -1) + 1) "reanme"
+		FROM MEMBER
+		WHERE PROFILE_IMG IS NOT NULL
+		UNION ALL 
+		SELECT IMG_RENAME "reanme"
+		FROM BOARD_IMG
+	 </select>
 </mapper>

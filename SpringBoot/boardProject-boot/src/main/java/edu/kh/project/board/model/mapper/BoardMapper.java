@@ -90,4 +90,10 @@ public interface BoardMapper {
 	 * @return list
 	 */
 	public List<String> selectImageList();
+
+	/** DB 모든 이미지 목록 조회
+	 * @return
+	 */
+	List<String> selectDbImageList();
+
 }

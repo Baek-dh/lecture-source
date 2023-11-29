@@ -26,14 +26,14 @@ public class ImageDeleteScheduling {
 	
 	
 	@Autowired
-	private ServletContext servletContext;
-	
-	@Autowired
 	private BoardService service; // DI(의존성 주입)
 	
 	
 	@Value("${my.board.location}")
-	private String filePath;
+	private String boardLocation;
+	
+	@Value("${my.member.location}")
+	private String memberLocation;
 
 	//@Scheduled(fixedDelay = 10000) // ms 단위
 	// 일(5초) -> 10초 대기 -> 일(5초) -> 10초 대기
@@ -43,9 +43,9 @@ public class ImageDeleteScheduling {
 	// 대기(10초)
 	
 	// cron="초 분 시 일 월 요일 [년도]"
-	@Scheduled(fixedRate = 5000) 
+//	@Scheduled(fixedRate = 5000) 
 //	@Scheduled(cron = "0,30 * * * * *") // 매 분 0초, 30초 마다
-//	@Scheduled(cron = "0 0 * * * *") // 매 정시( *시 0분 0초)
+	@Scheduled(cron = "0 0 * * * *") // 매 정시( *시 0분 0초)
 	public void test() {
 		//System.out.println("스케쥴러가 일정 시간마다 자동으로 출력");
 		
@@ -57,52 +57,51 @@ public class ImageDeleteScheduling {
 		// 매칭되지 않는 서버 파일 제거
 		
 		// 1) 서버에 저장된 파일 목록 조회
-		// -> application 객체를 이용해서
-		//  /resources/images/board의 실제 서버 경로를 얻어옴
-		//String filePath = servletContext.getRealPath("/resources/images/board");
-		//C:\workspace\06_Framework\boardProject\src\main\webapp\resources\images\board
+		File boardFolder = new File(boardLocation);
+		File memberFolder = new File(memberLocation);
 		
-		// 2) filePath에 저장된 모든 파일 목록 읽어오기
-		File path = new File(filePath);
-		File[] imageArr = path.listFiles();
+		File[] boardArr = boardFolder.listFiles();
+		File[] memberArr = memberFolder.listFiles();
+		
+		File[] imageArr = new File[boardArr.length + memberArr.length];
+		
+		System.arraycopy(boardArr, 0, imageArr, 0, boardArr.length);
+		System.arraycopy(memberArr, 0, imageArr, boardArr.length, memberArr.length);
 		
 		// 배열 -> List로 변환
 		List<File> serverImageList = Arrays.asList(imageArr);
 		
-		log.debug(serverImageList.toString());
+//		log.debug(serverImageList.toString());
 		
 		
-		// 3) DB 파일 목록 조회
-//		List<String> dbImageList = service.selectImageList();
-//		
-//
-//		// 4) 서버에 파일 목록이 있을 경우에 비교 시작
-//		if( !serverImageList.isEmpty() ) {
-//			
-//			// 5) 서버 파일 목록을 순차 접근
-//			for(File server : serverImageList) {
-//				
-//				// 6) 서버에 존재하는 파일이
-//				// DB(dbImageList)에 없다면 삭제
-//				
-//				//String[] temp = server.toString().split("\\");
-//				//String s = temp[temp.length-1];
-//				//System.out.println( server.getName() );
-//				
-//				// List.indexOf(객체) = 객체가 List에 있으면 해당 인덱스 반환  
-//				//						없으면 -1 반환
-//				if(dbImageList.indexOf(server.getName()) == -1) {
-//				//	db파일목록 		  서버 파일 이름 == -1 ( 없음)
-//					
-//					System.out.println(server.getName() + " 삭제");
-//					server.delete(); // File.delete() :  파일 삭제
-//				}
-//				
-//			} // for문 종료 
-//			
-//			System.out.println("----- 이미지 파일 삭제 스케쥴러 종료 -----");
-//			
-//		}
+		// 2) DB 모든 이미지 목록 조회
+		List<String> dbImageList = service.selectDbImageList();
+		
+		
+//		log.debug(dbImageList.toString());
+
+		// 3) 서버에 파일 목록이 있을 경우에 비교 시작
+		if( !serverImageList.isEmpty() ) {
+			
+			// 4) 서버 파일 목록을 순차 접근
+			for(File server : serverImageList) {
+				
+				// 5) 서버에 존재하는 파일이 DB(dbImageList)에 없다면 삭제
+				
+				// List.indexOf(객체) = 객체가 List에 있으면 해당 인덱스 반환  
+				//						없으면 -1 반환
+				if(!dbImageList.contains(server.getName())) {
+				//	db파일목록 		  서버 파일 이름 == -1 ( 없음)
+					
+					log.debug(server.getName() + " 삭제");
+					server.delete(); // File.delete() :  파일 삭제
+				}
+				
+			} // for문 종료 
+			
+			log.info("----- 이미지 파일 삭제 스케쥴러 종료 -----");
+			
+		}
 	}
 	
 	
@@ -138,8 +137,6 @@ public class ImageDeleteScheduling {
  * ? : 특별한 값이 없음. (월, 요일만 해당) 
  * L : 마지막. (월, 요일만 해당)
  * @Scheduled(cron="0 * * * * *") // 매 분마다 실행
- * 
- * 
  * 
  * 
  * * 주의사항 - @Scheduled 어노테이션은 매개변수가 없는 메소드에만 적용 가능.

@@ -140,5 +140,10 @@ public class BoardServiceImpl implements BoardService{
 	}
 	
 	
+	// DB 모든 이미지 목록 조회
+	@Override
+	public List<String> selectDbImageList() {
+		return mapper.selectDbImageList();
+	}
 	
 }
